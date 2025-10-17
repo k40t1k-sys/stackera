@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Crypto Ticker WS client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    code { background: #f5f5f5; padding: 0.25rem 0.5rem; border-radius: 4px; }
+    #log { white-space: pre; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:#fafafa; padding:1rem; border:1px solid #eee; border-radius:6px; max-height:60vh; overflow:auto; }
+  </style>
+</head>
+<body>
+  <h1>Crypto Ticker — Local WS</h1>
+  <p>Connecting to <code>ws://localhost:8000/ws</code>…</p>
+  <div id="log"></div>
+
+  <script>
+    const log = (msg) => {
+      const el = document.getElementById("log");
+      el.textContent += msg + "\n";
+      el.scrollTop = el.scrollHeight;
+    };
+
+    const ws = new WebSocket("ws://localhost:8000/ws");
+    ws.onopen = () => log("[open] connected");
+    ws.onmessage = (evt) => log(evt.data);
+    ws.onclose = (evt) => log(`[close] code=${evt.code} reason=${evt.reason}`);
+    ws.onerror = (err) => log(`[error] ${err.message || err}`);
+  </script>
+</body>
+</html>
