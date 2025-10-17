@@ -1,11 +1,15 @@
 # STACKERA BACKEND ASSIGNMENT
 
-Objective
+#### Objective
+
 Build a Python application that:
+
 ● Connects to Binance’s public WebSocket API to listen to live crypto prices.
+
 ● Runs its own WebSocket server that broadcasts these prices to any
 connected clients in real-time
 Requirements
+
 1. Binance Listener
 Use the Binance WebSocket endpoint:
 wss://stream.binance.com:9443/ws/btcusdt@ticker

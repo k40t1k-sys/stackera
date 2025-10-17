@@ -27,7 +27,6 @@ class BinanceListener:
         syms = [s.lower() for s in symbols]
         base = self.settings.binance_base_url.rstrip("/")
         if len(syms) == 1:
-            # Requirement explicitly references this path for BTCUSDT
             return f"{base}/ws/{syms[0]}@ticker"
         streams = "/".join(f"{s}@ticker" for s in syms)
         return f"{base}/stream?streams={streams}"
@@ -59,7 +58,6 @@ class BinanceListener:
                             logging.warning("Invalid JSON from Binance (truncated): %r", raw[:200])
                             continue
 
-                        # Combined stream messages nest data under "data"; single stream is the payload itself
                         data = payload.get("data", payload)
                         if not isinstance(data, dict):
                             continue
@@ -73,7 +71,6 @@ class BinanceListener:
                         await self.broker.publish(update)
 
             except asyncio.CancelledError:
-                # Fast shutdown on application exit
                 raise
             except Exception as e:
                 logging.exception("Binance WS error: %s", e)

@@ -1,26 +1,26 @@
+# Use an official lightweight Python image
 FROM python:3.11-slim
 
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies (for uvicorn, websockets, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates tini && \
+    build-essential curl && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /srv/app
-
+# Copy requirement files if you have them
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app ./app
-COPY examples ./examples
+# Install Python dependencies (fallback to pip freeze if no file)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt || true
 
-RUN useradd -m -u 10001 appuser
-USER appuser
+# Copy the rest of the source code
+COPY . .
 
-ENV PYTHONUNBUFFERED=1 \
-    APP_SYMBOLS=BTCUSDT,ETHUSDT,BNBUSDT \
-    APP_LOG_LEVEL=INFO \
-    PORT=8000
-
+# Expose FastAPI port
 EXPOSE 8000
 
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", ${PORT}]
+# Use Uvicorn to serve FastAPI
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
