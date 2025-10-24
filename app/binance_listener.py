@@ -39,15 +39,21 @@ class BinanceListener:
             try:
                 async with websockets.connect(
                     url,
-                    ping_interval=self.settings.ping_interval,
-                    ping_timeout=self.settings.ping_timeout,
+                    ping_interval=None,
                     close_timeout=10,
                     max_size=2**20,     # 1 MiB
+                    max_queue=None,
                     open_timeout=20,
                 ) as ws:
                     logging.info("Connected to Binance WS: %s", url)
                     backoff = self.settings.reconnect_min_delay
 
+                    while not self.stop_event.is_set():
+                        try:
+                            raw = await asyncio.wait_for(ws.recv(), timeout=90.0)  # no data for 90s? treat as dead.
+                        except asyncio.TimeoutError:
+                            raise TimeoutError("no data from Binance within 90s; reconnecting")
+                    
                     async for raw in ws:
                         if self.stop_event.is_set():
                             break
